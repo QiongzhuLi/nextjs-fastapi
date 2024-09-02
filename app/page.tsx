@@ -1,7 +1,27 @@
+"use client"; // Add this line to convert to a Client Component
+
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react"; // Import useState for state management
 
 export default function Home() {
+  const [responseMessage, setResponseMessage] = useState<string | null>(null); // Add state for response message
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const input = (event.currentTarget.elements[0] as HTMLInputElement).value; // Get the input value
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ message: input }), // Send the input value
+    });
+    const data = await response.json();
+    console.log(data); // Log the response data
+    setResponseMessage(data.answer); // Store the response message
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex">
@@ -111,6 +131,12 @@ export default function Home() {
           </p>
         </a>
       </div>
+
+      <form onSubmit={handleSubmit} className="mb-4">
+        <input type="text" placeholder="Type your message" className="border p-2" />
+        <button type="submit" className="ml-2 p-2 bg-blue-500 text-white">Send</button>
+      </form>
+      {responseMessage && <p>{responseMessage}</p>} {/* Display the response message */}
     </main>
   );
 }
