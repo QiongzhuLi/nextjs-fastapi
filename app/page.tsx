@@ -10,16 +10,26 @@ export default function Home() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const input = (event.currentTarget.elements[0] as HTMLInputElement).value; // Get the input value
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ message: input }), // Send the input value
-    });
-    const data = await response.json();
-    console.log(data); // Log the response data
-    setResponseMessage(data.answer); // Store the response message
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: input }), // Send the input value
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+      console.log(data); // Log the response data
+      setResponseMessage(data.answer); // Store the response message
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setResponseMessage('Error fetching data');
+    }
   };
 
   return (
